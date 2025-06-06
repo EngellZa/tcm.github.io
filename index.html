@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alcance del Proyecto - Facturación Electrónica TCM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 
+    Chosen Palette: Warm Neutrals & Slate Blue
+    Application Structure Plan: A single-page dashboard design. The structure prioritizes user exploration over the linear format of the source report. It uses a sticky navigation bar for easy access to thematic sections: 1. Overview (Objective & Tech Stack), 2. Scope (visual diagram), 3. Functional Requirements (interactive cards), 4. Data Architecture (structured lists), 5. Use Cases (grid of invoice types), 6. FAQ (interactive accordion), and 7. Recommendations. This structure breaks down the dense information into digestible, visually distinct blocks, making it more user-friendly for stakeholders to quickly understand the project's key aspects. A donut chart is included to visualize the project components, adding a dynamic element.
+    Visualization & Content Choices: 
+    - Report Info: Project Components -> Goal: Inform -> Viz/Presentation: Donut Chart -> Interaction: Hover for details -> Justification: Provides a quick visual summary of the project's effort distribution, making a text-heavy report more engaging. -> Library/Method: Chart.js/Canvas.
+    - Report Info: Technical Stack -> Goal: Inform -> Viz/Presentation: Styled Cards -> Interaction: Static -> Justification: Organizes technologies into clean, readable blocks. -> Library/Method: HTML/Tailwind.
+    - Report Info: Application Scope -> Goal: Organize -> Viz/Presentation: Flowchart-style Diagram -> Interaction: Static -> Justification: Visually represents the system's reach (Web, Mobile, API) more effectively than a list. -> Library/Method: HTML/Tailwind.
+    - Report Info: FAQ -> Goal: Organize/Inform -> Viz/Presentation: Accordion -> Interaction: Click to expand/collapse -> Justification: Condenses a long list of questions into a clean, manageable format, improving readability. -> Library/Method: HTML/Tailwind/JS.
+    CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+            color: #212529;
+        }
+        
+        .section-title {
+            font-weight: 700;
+            font-size: 2.25rem;
+            color: #343A40;
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: 1px solid #E9ECEF;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        
+        .nav-link {
+            color: #495057;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #E9ECEF;
+            color: #007BFF;
+        }
+        
+        .accordion-button {
+            transition: background-color 0.2s ease;
+        }
+        
+        .accordion-button.open {
+            background-color: #E9ECEF;
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            min-height: 250px;
+        }
+        
+        .link-text {
+            color: #007BFF;
+            /* Bootstrap primary blue */
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .link-text:hover {
+            color: #0056b3;
+            /* Darker blue on hover */
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm border-b border-gray-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800">Facturación Electrónica TCM</h1>
+            <div class="hidden md:flex space-x-2">
+                <a href="#vision" class="nav-link">Visión General</a>
+                <a href="#alcance" class="nav-link">Alcance</a>
+                <a href="#funcionalidades" class="nav-link">Funcionalidades</a>
+                <a href="#arquitectura" class="nav-link">Arquitectura</a>
+                <a href="#faq" class="nav-link">Preguntas</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#vision" class="block nav-link text-center mb-2">Visión General</a>
+            <a href="#alcance" class="block nav-link text-center mb-2">Alcance</a>
+            <a href="#funcionalidades" class="block nav-link text-center mb-2">Funcionalidades</a>
+            <a href="#arquitectura" class="block nav-link text-center mb-2">Arquitectura</a>
+            <a href="#faq" class="block nav-link text-center">Preguntas</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="vision" class="py-16 md:py-24 bg-white min-h-[60vh]">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-4xl mx-auto">
+                    <h2 class="text-3xl md:text-5xl font-bold text-gray-900 mb-4">Visión General del Proyecto</h2>
+                    <p class="text-lg md:text-xl text-gray-600 mb-12">
+                        Modelar, diseñar e implementar una solución integral de facturación electrónica 100% alineada con la legislación del Ministerio de Hacienda de Costa Rica, abarcando todo el ciclo de vida de los comprobantes electrónicos.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <div class="card p-6 text-center">
+                        <h3 class="text-xl font-bold mb-2">Backend</h3>
+                        <p class="text-gray-600">Spring Boot (Java)</p>
+                    </div>
+                    <div class="card p-6 text-center">
+                        <h3 class="text-xl font-bold mb-2">Frontend</h3>
+                        <p class="text-gray-600">Angular</p>
+                    </div>
+                    <div class="card p-6 text-center">
+                        <h3 class="text-xl font-bold mb-2">Base de Datos</h3>
+                        <p class="text-gray-600">MySQL</p>
+                    </div>
+                    <div class="card p-6 text-center">
+                        <h3 class="text-xl font-bold mb-2">Infraestructura</h3>
+                        <p class="text-gray-600">AWS, Docker, Kubernetes</p>
+                    </div>
+                    <div class="card p-6 text-center">
+                        <h3 class="text-xl font-bold mb-2">Servidor</h3>
+                        <p class="text-gray-600">AWS Lambda</p>
+                    </div>
+                    <div class="card p-6 text-center">
+                        <h3 class="text-xl font-bold mb-2">Control de Versiones</h3>
+                        <p class="text-gray-600">GitHub</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="alcance" class="py-16 md:py-24 bg-gray-50 min-h-[60vh]">
+            <div class="container mx-auto px-6">
+                <h2 class="section-title">Alcance de la Aplicación</h2>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="card p-8">
+                        <h3 class="text-2xl font-bold mb-4">Cobertura Integral</h3>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">✓</span><a href="#" class="link-text" target="_blank" rel="noopener noreferrer">Plataforma web y apps móviles (Android/iOS).</a></li>
+                            <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">✓</span><a href="#" class="link-text" target="_blank" rel="noopener noreferrer">API REST para integración con sistemas contables y POS.</a></li>
+                            <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">✓</span><a href="#" class="link-text" target="_blank" rel="noopener noreferrer">Documentación funcional y videos explicativos.</a></li>
+                            <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">✓</span><a href="https://www.bccr.fi.cr/indicadores-economicos/cat%C3%A1logo-de-bienes-y-servicios" class="link-text" target="_blank" rel="noopener noreferrer">Integración con catálogos oficiales como CABYS.</a></li>
+                            <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">✓</span><a href="https://www.hacienda.go.cr/docs/ComprobantesElectronicos-GeneralidadesyVersion4.4.marzo2025.pdf" class="link-text" target="_blank" rel="noopener noreferrer">Reportes fiscales automáticos y en tiempo real.</a></li>
+                            <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">✓</span><a href="https://www.hacienda.go.cr/docs/ComprobantesElectronicos-GeneralidadesyVersion4.4.marzo2025.pdf" class="link-text" target="_blank" rel="noopener noreferrer">Almacenamiento seguro por 5 años.</a></li>
+                        </ul>
+                    </div>
+                    <div class="chart-container h-80 md:h-96">
+                        <canvas id="projectComponentsChart"></canvas>
+                        <p class="text-center text-sm text-gray-500 mt-4">Distribución de Componentes del Proyecto</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="funcionalidades" class="py-16 md:py-24 bg-white min-h-[60vh]">
+            <div class="container mx-auto px-6">
+                <h2 class="section-title">Requerimientos Funcionales</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg mb-2">Emisión de Comprobantes</h3>
+                        <p class="text-gray-600">Capacidad para emitir todo tipo de comprobantes: factura, tiquete, notas de crédito/débito y factura de compra.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg mb-2">Firma Digital</h3>
+                        <p class="text-gray-600">Firma obligatoria de todos los comprobantes con certificado digital vigente (.p12).</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg mb-2">Comunicación con Hacienda</h3>
+                        <p class="text-gray-600">Envío y recepción de comprobantes vía API, gestionando la validación y estados.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg mb-2">Distribución a Clientes</h3>
+                        <p class="text-gray-600">Envío automático del XML y PDF del comprobante al correo electrónico del cliente.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg mb-2">Validación de Documentos</h3>
+                        <p class="text-gray-600">Procesos para validar documentos recibidos de proveedores, garantizando su autenticidad.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg mb-2">Manejo de Aceptaciones</h3>
+                        <p class="text-gray-600">Funcionalidad para registrar y gestionar las aceptaciones o rechazos de facturas recibidas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="arquitectura" class="py-16 md:py-24 bg-gray-50 min-h-[60vh]">
+            <div class="container mx-auto px-6">
+                <h2 class="section-title">Arquitectura de Datos y Casos de Uso</h2>
+                <div class="grid lg:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6 text-center">Estructura de Datos</h3>
+                        <div class="space-y-6">
+                            <div class="card p-6">
+                                <h4 class="font-semibold text-lg mb-2">Maestros</h4>
+                                <p class="text-gray-600">Entidades principales como Productos, Clientes, Facturas, Pagos y Paquetes de Facturación.</p>
+                            </div>
+                            <div class="card p-6">
+                                <h4 class="font-semibold text-lg mb-2">Tablas de Referencia</h4>
+                                <p class="text-gray-600">Datos de soporte como Categorías CABYS, Perfiles de Usuario, Monedas y Actividades Económicas.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6 text-center">Tipos de Factura Soportados</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            <div class="card p-4 text-center">
+                                <p>Proforma</p>
+                            </div>
+                            <div class="card p-4 text-center">
+                                <p>Alquileres</p>
+                            </div>
+                            <div class="card p-4 text-center">
+                                <p>Exportación</p>
+                            </div>
+                            <div class="card p-4 text-center">
+                                <p>Sector Salud</p>
+                            </div>
+                            <div class="card p-4 text-center">
+                                <p>Exentas</p>
+                            </div>
+                            <div class="card p-4 text-center">
+                                <p>Automercado</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="faq" class="py-16 md:py-24 bg-white min-h-[60vh]">
+            <div class="container mx-auto px-6 max-w-4xl">
+                <h2 class="section-title">Preguntas y Aclaraciones</h2>
+                <div class="space-y-4" id="accordion-container">
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 TCM Tecnologías con Clase Mundial. Todos los derechos reservados.</p>
+            <p class="text-sm text-gray-400 mt-2">Documento de Alcance v1.1</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            const faqData = [{
+                question: "¿Cómo se configuran los descuentos?",
+                answer: "Se deben definir reglas de negocio para aplicar descuentos por línea de producto y de forma global. Estas deben reflejarse en el XML bajo los nodos &lt;Descuento&gt; por cada línea, según el esquema de Hacienda. <a href='https://www.hacienda.go.cr/docs/ComprobantesElectronicos-GeneralidadesyVersion4.4.marzo2025.pdf' class='link-text' target='_blank' rel='noopener noreferrer'>Ver detalles técnicos (Hacienda)</a>"
+            }, {
+                question: "¿A qué se refieren las 'compras'?",
+                answer: "Hace referencia a la 'Factura Electrónica de Compra', usada para registrar adquisiciones realizadas a proveedores no obligados a emitir comprobantes, como los del régimen simplificado. <a href='https://www.hacienda.go.cr/docs/ComprobantesElectronicos-GeneralidadesyVersion4.4.marzo2025.pdf' class='link-text' target='_blank' rel='noopener noreferrer'>Más información (Hacienda)</a>"
+            }, {
+                question: "¿Qué es la llave criptográfica?",
+                answer: "Es el archivo .p12 emitido por Hacienda desde la plataforma ATV. Es indispensable para firmar digitalmente los comprobantes y tiene una vigencia de 2 años. Se renueva mediante la plataforma <a href='https://atv.hacienda.go.cr/ATV/login.aspx' class='link-text' target='_blank' rel='noopener noreferrer'>ATV de Hacienda</a>."
+            }, {
+                question: "¿Qué son los códigos CABYS?",
+                answer: "Es el catálogo obligatorio de bienes y servicios. Cada producto o servicio debe tener su código correspondiente de 13 dígitos para la correcta clasificación e indicación del IVA. Puedes consultar el catálogo en el <a href='https://www.bccr.fi.cr/indicadores-economicos/cat%C3%A1logo-de-bienes-y-servicios' class='link-text' target='_blank' rel='noopener noreferrer'>sitio del BCCR</a>."
+            }, {
+                question: "¿Cómo funciona la exoneración de un documento?",
+                answer: "Aplica cuando el receptor tiene un documento válido de exoneración. La información de dicho documento debe adjuntarse en el XML del comprobante en el nodo &lt;Exoneracion&gt; para ser válida. Para entender el proceso de obtención, puedes consultar este <a href='https://blog.alegra.com/costa-rica/que-es-exonet/' class='link-text' target='_blank' rel='noopener noreferrer'>artículo sobre EXONET</a>."
+            }, {
+                question: "¿Qué es un 'Sistema GTI'?",
+                answer: "Posiblemente se refiere a un sistema de facturación actual del cliente (Gestión en Tecnología e Información). Requiere validación para definir requisitos de integración o migración, por lo que no hay un enlace externo específico."
+            }];
+
+            const accordionContainer = document.getElementById('accordion-container');
+            faqData.forEach((item, index) => {
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'card overflow-hidden';
+                accordionItem.innerHTML = `
+                    <button class="accordion-button w-full text-left p-5 font-semibold flex justify-between items-center hover:bg-gray-100">
+                        <span>${item.question}</span>
+                        <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-5 pt-0 text-gray-700">
+                            <p>${item.answer}</p>
+                        </div>
+                    </div>
+                `;
+                accordionContainer.appendChild(accordionItem);
+            });
+
+            accordionContainer.addEventListener('click', (e) => {
+                const button = e.target.closest('.accordion-button');
+                if (button) {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('svg');
+
+                    button.classList.toggle('open');
+
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                }
+            });
+
+            const ctx = document.getElementById('projectComponentsChart').getContext('2d');
+            const projectComponentsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Backend', 'Frontend', 'Infraestructura', 'Gestión y Soporte', 'Bases de Datos'],
+                    datasets: [{
+                        label: 'Distribución de Componentes',
+                        data: [35, 30, 15, 10, 10],
+                        backgroundColor: [
+                            '#007BFF',
+                            '#17A2B8',
+                            '#FFC107',
+                            '#6C757D',
+                            '#28A745'
+                        ],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += context.parsed + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 100) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
